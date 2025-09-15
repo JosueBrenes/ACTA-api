@@ -78,30 +78,60 @@ export class StellarService {
       
       console.log('📦 Generated Contract ID:', contractId);
       
-      // For now, we'll simulate a successful deployment
-      // In a real implementation, you would use the Soroban CLI or proper SDK methods
-      console.log('✅ Contract deployment simulated successfully');
+      // Store credential data in account data for verification
+      console.log('🔧 Storing credential data on Stellar account...');
+      
+      // Create a data key for this credential (max 64 chars for key)
+      const dataKey = `cred_${contractId.substring(0, 10)}`;
+      
+      // Store only the hash (max 64 bytes for value) - hash is 64 chars hex = 64 bytes
+      const credentialValue = hash.substring(0, 64); // Ensure it fits in 64 bytes
+      
+      console.log('📊 Data storage info:', {
+        dataKey,
+        dataKeyLength: dataKey.length,
+        credentialValue: credentialValue.substring(0, 20) + '...',
+        credentialValueLength: credentialValue.length
+      });
+      
+      // Create account data operation to store credential
+      const dataOp = StellarSdk.Operation.manageData({
+        name: dataKey,
+        value: credentialValue,
+        source: this.sourceKeypair.publicKey(),
+      });
+      
+      // Create a minimal payment to record the credential creation
+      const paymentOp = StellarSdk.Operation.payment({
+        destination: this.sourceKeypair.publicKey(),
+        asset: StellarSdk.Asset.native(),
+        amount: '0.0000001',
+        source: this.sourceKeypair.publicKey(),
+      });
+      
+      // Build and submit the transaction
+      const transaction = new StellarSdk.TransactionBuilder(account, {
+        fee: (parseInt(StellarSdk.BASE_FEE) * 2).toString(),
+        networkPassphrase: this.networkPassphrase,
+      })
+        .addOperation(dataOp)
+        .addOperation(paymentOp)
+        .addMemo(StellarSdk.Memo.text(`CRED:${contractId.substring(0, 10)}`))
+        .setTimeout(300)
+        .build();
+      
+      transaction.sign(this.sourceKeypair);
+      const result = await this.server.submitTransaction(transaction);
+      
+      console.log('✅ Real Stellar transaction submitted successfully!');
       console.log('Contract ID:', contractId);
-
-      // Simulate contract initialization with credential data
-      console.log('🔧 Initializing contract with credential data...');
-      console.log('Hash:', hash);
-      console.log('Status:', status);
+      console.log('Real Transaction Hash:', result.hash);
+      console.log('Ledger Sequence:', result.ledger);
       
-      // Generate a mock transaction hash for the deployment
-      const mockTxHash = crypto.createHash('sha256')
-        .update(contractId + hash + Date.now().toString())
-        .digest('hex');
-      
-      console.log('✅ Soroban contract deployed and initialized successfully!');
-      console.log('Final Contract ID:', contractId);
-      console.log('Transaction Hash:', mockTxHash);
-      console.log('Ledger Sequence: 12345');
-
       return {
         contractId: contractId,
-        transactionHash: mockTxHash,
-        ledgerSequence: 12345
+        transactionHash: result.hash, // Real transaction hash from Stellar
+        ledgerSequence: result.ledger // Real ledger sequence
       };
 
     } catch (error) {
@@ -149,8 +179,8 @@ export class StellarService {
       // Load account to read stored data
       const account = await this.server.loadAccount(this.sourceKeypair.publicKey());
 
-      // Construct data key for the new format
-      const dataKey = `cred_${contractId.substring(0, 16)}`;
+      // Construct data key for the new simplified format
+      const dataKey = `cred_${contractId.substring(0, 10)}`;
 
       // Get the credential data from account data
       const credentialData = account.data_attr[dataKey];
@@ -158,40 +188,16 @@ export class StellarService {
         throw new Error(`Credential data not found for contract ID: ${contractId}`);
       }
 
-      // Decode base64 encoded value and parse JSON
-      const decodedData = Buffer.from(credentialData, 'base64').toString('utf-8');
-      let parsedData;
+      // Decode base64 encoded value - now it's just the hash
+      const hash = Buffer.from(credentialData, 'base64').toString('utf-8');
       
-      try {
-        parsedData = JSON.parse(decodedData);
-      } catch (parseError) {
-        // Fallback for old format - treat as plain hash
-        console.log('⚠️ Using legacy credential format');
-        return {
-          hash: decodedData,
-          status: CredentialStatus.ACTIVE
-        };
-      }
-
-      // Extract hash and status from parsed data (handle both compact and legacy formats)
-      const hash = parsedData.h || parsedData.hash; // 'h' for compact, 'hash' for legacy
-      const status = parsedData.s || parsedData.status; // 's' for compact, 'status' for legacy
-      
-      // Convert status string back to enum if needed
-      const credentialStatus = typeof status === 'string' ? 
-        (status === 'Active' ? CredentialStatus.ACTIVE :
-         status === 'Revoked' ? CredentialStatus.REVOKED :
-         status === 'Suspended' ? CredentialStatus.SUSPENDED :
-         CredentialStatus.ACTIVE) : status;
-
       console.log('✅ Credential info retrieved successfully');
       console.log('Hash:', hash);
-      console.log('Status:', credentialStatus);
-      console.log('Timestamp:', parsedData.t || parsedData.createdAt);
+      console.log('Status: ACTIVE (default)');
 
       return {
         hash,
-        status: credentialStatus
+        status: CredentialStatus.ACTIVE // Default status since we're only storing hash
       };
 
     } catch (error) {
@@ -215,39 +221,18 @@ export class StellarService {
         throw new Error(`Credential not found for contract ID: ${contractId}`);
       }
 
-      // Decode and parse existing data
-      const decodedData = Buffer.from(existingData, 'base64').toString('utf-8');
-      let credentialData;
+      // Decode existing data - it's just the hash now
+      const existingHash = Buffer.from(existingData, 'base64').toString('utf-8');
       
-      try {
-        credentialData = JSON.parse(decodedData);
-      } catch (parseError) {
-        // Handle legacy format - convert to compact format
-        credentialData = {
-          h: decodedData.substring(0, 16),
-          s: CredentialStatus.ACTIVE,
-          t: Date.now()
-        };
-      }
+      console.log('📝 Status update note: With simplified format, status changes are recorded in transaction memo only');
+      console.log('Existing hash:', existingHash.substring(0, 20) + '...');
+      console.log('New status:', newStatus);
 
-      // Update the status and timestamp (use compact format)
-      if (credentialData.h) {
-        // Already compact format
-        credentialData.s = newStatus;
-        credentialData.t = Date.now();
-      } else {
-        // Convert legacy to compact format
-        credentialData = {
-          h: (credentialData.hash || credentialData.h || '').substring(0, 16),
-          s: newStatus,
-          t: Date.now()
-        };
-      }
-
-      // Update credential data in account data
+      // For simplified format, we keep the same hash but record status change in memo
+      // Update credential data in account data (keep the same hash)
       const updateOp = StellarSdk.Operation.manageData({
         name: dataKey,
-        value: JSON.stringify(credentialData),
+        value: existingHash, // Keep the same hash
         source: this.sourceKeypair.publicKey(),
       });
 
@@ -265,7 +250,7 @@ export class StellarService {
       })
         .addOperation(updateOp)
         .addOperation(recordOp)
-        .addMemo(StellarSdk.Memo.text(`UPDATE:${contractId.substring(0, 16)}`))
+        .addMemo(StellarSdk.Memo.text(`UPDATE:${contractId.substring(0, 10)}:${newStatus}`))
         .setTimeout(300)
         .build();
 
