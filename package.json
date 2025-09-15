@@ -9,22 +9,28 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["stellar", "credentials", "smart-contracts", "api"],
+  "keywords": [
+    "stellar",
+    "credentials",
+    "smart-contracts",
+    "api"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@stellar/stellar-sdk": "^12.0.1",
-    "express": "^4.18.2",
+    "@stellar/stellar-sdk": "^12.3.0",
+    "@stellar/stellar-base": "^12.1.1",
     "cors": "^2.8.5",
-    "helmet": "^7.0.0",
+    "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
-    "crypto": "^1.0.1"
+    "express": "^4.18.2",
+    "helmet": "^7.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.5.0",
-    "@types/express": "^4.17.17",
     "@types/cors": "^2.8.13",
-    "typescript": "^5.1.6",
-    "ts-node-dev": "^2.0.0"
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.5.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6"
   }
 }
