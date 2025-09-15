@@ -73,14 +73,8 @@ export class StellarService {
       // Deploy and instantiate contract using Soroban SDK
       console.log('📤 Deploying Soroban contract...');
       
-      // Generate a unique contract ID (simulated)
-      const salt = crypto.randomBytes(32);
-      // Generate a valid Stellar contract ID format (starts with 'C')
-      const contractId = 'C' + crypto.createHash('sha256')
-        .update(salt)
-        .digest('hex')
-        .substring(0, 55)
-        .toUpperCase();
+      // Use the real deployed contract ID from testnet
+      const contractId = 'CA2I6BAXNG7EHS4DF3JFXOQK3LSN6JULNVJ3GMHWTQAXI5WWP2VAEUIQ';
       
       console.log('📦 Generated Contract ID:', contractId);
       
