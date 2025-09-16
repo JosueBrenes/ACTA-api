@@ -149,6 +149,7 @@ Thumbs.db
 target/
 Cargo.lock
 *.wasm
+!contracts/credential.wasm
 
 # API specific
 uploads/
