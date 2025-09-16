@@ -15,7 +15,7 @@ app.use(securityHeaders);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/credentials', credentialsRouter);
+app.use('/v1/credentials', credentialsRouter);
 
 app.get('/health', (req, res) => {
   res.json({
@@ -30,9 +30,9 @@ app.get('/', (req, res) => {
     message: 'Stellar Credential API',
     version: '1.0.0',
     endpoints: {
-      'POST /api/credentials': 'Create a new credential with contract deployment',
-      'GET /api/credentials/:contractId': 'Get credential information from contract',
-      'PATCH /api/credentials/:contractId/status': 'Update credential status in contract',
+      'POST /v1/credentials': 'Create a new credential with contract deployment',
+      'GET /v1/credentials/:contractId': 'Get credential information from contract',
+      'PATCH /v1/credentials/:contractId/status': 'Update credential status in contract',
       'GET /health': 'Health check endpoint'
     }
   });

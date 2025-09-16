@@ -5,7 +5,7 @@ Stellar blockchain API for creating and managing verifiable credentials using sm
 ## Quick Start
 
 ```bash
-cd API-v2/api
+cd API-v2/v1
 npm install
 npm run dev
 ```
@@ -23,7 +23,7 @@ STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
 
 ## API Endpoints
 
-### `POST /api/credentials`
+### `POST /v1/credentials`
 Create a new credential and deploy smart contract
 
 ```json
@@ -36,10 +36,10 @@ Create a new credential and deploy smart contract
 }
 ```
 
-### `GET /api/credentials/:contractId`
+### `GET /v1/credentials/:contractId`
 Get credential information from blockchain
 
-### `PATCH /api/credentials/:contractId/status`
+### `PATCH /v1/credentials/:contractId/status`
 Update credential status (`Active`, `Revoked`, `Suspended`)
 
 ### `GET /health`
