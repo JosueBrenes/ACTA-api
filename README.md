@@ -1,4 +1,4 @@
-# ACTA API v2
+# ACTA API v1
 
 Stellar blockchain API for creating and managing verifiable credentials using smart contracts.
 
