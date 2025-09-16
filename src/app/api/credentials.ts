@@ -41,39 +41,6 @@ function getStellarService(): StellarService {
   return stellarService;
 }
 
-/**
- * @swagger
- * /v1/credentials:
- *   post:
- *     summary: Create a new credential
- *     description: Deploy a new credential smart contract to the Stellar blockchain
- *     tags: [Credentials]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateCredentialRequest'
- *     responses:
- *       201:
- *         description: Credential created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/CreateCredentialResponse'
- *       400:
- *         description: Bad request - missing required fields
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
 router.post('/', async (req: Request, res: Response) => {
   try {
     const credentialRequest: CredentialRequest = req.body;
@@ -105,41 +72,6 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-/**
- * @swagger
- * /v1/credentials/{contractId}:
- *   get:
- *     summary: Get credential information
- *     description: Retrieve credential information from the Stellar blockchain
- *     tags: [Credentials]
- *     parameters:
- *       - in: path
- *         name: contractId
- *         required: true
- *         description: Stellar contract ID of the credential
- *         schema:
- *           type: string
- *           example: CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
- *     responses:
- *       200:
- *         description: Credential information retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GetCredentialResponse'
- *       400:
- *         description: Bad request - missing contract ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
 router.get('/:contractId', async (req: Request, res: Response) => {
   try {
     const { contractId } = req.params;
@@ -170,54 +102,6 @@ router.get('/:contractId', async (req: Request, res: Response) => {
   }
 });
 
-/**
- * @swagger
- * /v1/credentials/{contractId}/status:
- *   patch:
- *     summary: Update credential status
- *     description: Update the status of a credential in the Stellar blockchain
- *     tags: [Credentials]
- *     parameters:
- *       - in: path
- *         name: contractId
- *         required: true
- *         description: Stellar contract ID of the credential
- *         schema:
- *           type: string
- *           example: CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/UpdateStatusRequest'
- *     responses:
- *       200:
- *         description: Credential status updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Credential status updated successfully
- *       400:
- *         description: Bad request - missing required fields
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
 router.patch('/:contractId/status', async (req: Request, res: Response) => {
   try {
     const { contractId } = req.params;

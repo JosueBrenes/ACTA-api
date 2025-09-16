@@ -3,7 +3,6 @@ import helmet from 'helmet';
 import * as dotenv from 'dotenv';
 import { corsMiddleware, securityHeaders } from './config/cors';
 import credentialsRouter from './app/api/credentials';
-import { specs, swaggerUi, swaggerUiOptions } from './config/swagger';
 
 dotenv.config();
 
@@ -16,28 +15,21 @@ app.use(securityHeaders);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger UI setup
-app.use('/', swaggerUi.serve);
-app.get('/', swaggerUi.setup(specs, swaggerUiOptions));
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'ACTA API - Stellar Credential Management',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      credentials: '/v1/credentials'
+    }
+  });
+});
 
 // API routes
 app.use('/v1/credentials', credentialsRouter);
 
-/**
- * @swagger
- * /health:
- *   get:
- *     summary: Health check
- *     description: Check if the API is running and healthy
- *     tags: [Health]
- *     responses:
- *       200:
- *         description: API is healthy
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/HealthResponse'
- */
 app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
