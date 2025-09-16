@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import * as dotenv from 'dotenv';
 import { corsMiddleware, securityHeaders } from './config/cors';
 import credentialsRouter from './app/api/credentials';
+import { specs, swaggerUi, swaggerUiOptions } from './config/swagger';
 
 dotenv.config();
 
@@ -15,26 +16,33 @@ app.use(securityHeaders);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Swagger UI setup
+app.use('/', swaggerUi.serve);
+app.get('/', swaggerUi.setup(specs, swaggerUiOptions));
+
+// API routes
 app.use('/v1/credentials', credentialsRouter);
 
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check
+ *     description: Check if the API is running and healthy
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: API is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthResponse'
+ */
 app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
     service: 'Stellar Credential API'
-  });
-});
-
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Stellar Credential API',
-    version: '1.0.0',
-    endpoints: {
-      'POST /v1/credentials': 'Create a new credential with contract deployment',
-      'GET /v1/credentials/:contractId': 'Get credential information from contract',
-      'PATCH /v1/credentials/:contractId/status': 'Update credential status in contract',
-      'GET /health': 'Health check endpoint'
-    }
   });
 });
 
@@ -57,5 +65,5 @@ app.use((error: Error, req: express.Request, res: express.Response, next: expres
 app.listen(PORT, () => {
   console.log(`🚀 Stellar Credential API running on port ${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/health`);
-  console.log(`📖 API docs: http://localhost:${PORT}/`);
+  console.log(`📖 Swagger UI: http://localhost:${PORT}/`);
 });
