@@ -150,6 +150,7 @@ target/
 Cargo.lock
 *.wasm
 !contracts/credential.wasm
+!src/contracts/credential.wasm
 
 # API specific
 uploads/

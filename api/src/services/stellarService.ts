@@ -29,7 +29,16 @@ export class StellarService {
     
     this.sourceKeypair = StellarSdk.Keypair.fromSecret(config.secretKey);
     this.networkPassphrase = config.networkPassphrase;
-    this.wasmPath = path.join(__dirname, '../contracts/credential.wasm');
+    // Try multiple possible paths for the WASM file
+    const possiblePaths = [
+      path.join(__dirname, '../contracts/credential.wasm'),
+      path.join(process.cwd(), 'contracts/credential.wasm'),
+      path.join(process.cwd(), 'api/contracts/credential.wasm'),
+      path.join(__dirname, '../../contracts/credential.wasm'),
+      path.join(process.cwd(), 'src/contracts/credential.wasm')
+    ];
+
+    this.wasmPath = possiblePaths.find(p => fs.existsSync(p)) || possiblePaths[0];
   }
 
   // Removed fallbackDeployment method - now using real Soroban contracts only
