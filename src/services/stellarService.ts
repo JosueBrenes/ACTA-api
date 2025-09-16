@@ -260,7 +260,7 @@ export class StellarService {
       console.log('✅ Status updated successfully');
       console.log('Update Transaction Hash:', result.hash);
       console.log('New Status:', newStatus);
-      console.log('Updated At:', credentialData.updatedAt);
+      console.log('Updated At:', new Date().toISOString());
       
       return true;
 

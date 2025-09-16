@@ -1,0 +1,6 @@
+node_modules
+dist
+build
+contracts/target
+.git
+package-lock.json

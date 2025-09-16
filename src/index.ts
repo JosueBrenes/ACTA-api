@@ -1,8 +1,8 @@
 import express from 'express';
 import helmet from 'helmet';
 import * as dotenv from 'dotenv';
-import { corsMiddleware, securityHeaders } from './middleware/cors';
-import credentialsRouter from './routes/credentials';
+import { corsMiddleware, securityHeaders } from './config/cors';
+import credentialsRouter from './app/api/credentials';
 
 dotenv.config();
 

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { StellarService } from '../services/stellarService';
-import { CredentialRequest, CredentialStatus } from '../types/stellar';
+import { StellarService } from '../../services/stellarService';
+import { CredentialRequest, CredentialStatus } from '../../types/stellar';
 
 const router = Router();
 
